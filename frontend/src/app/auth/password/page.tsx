@@ -39,13 +39,13 @@ function PasswordAuthContent() {
     return null;
   }
 
-  const handleAuth = async (prevState: any, formData: FormData) => {
+  const handleAuth = async (formData: FormData) => {
     setErrorMessage(null);
-    
+
     try {
-      const result = isSignUp 
-        ? await signUpWithPassword(prevState, formData)
-        : await signInWithPassword(prevState, formData);
+      const result = isSignUp
+        ? await signUpWithPassword(null, formData)
+        : await signInWithPassword(null, formData);
 
       // If we get here, there was an error (redirect would have happened server-side)
       if (result && typeof result === 'object' && 'message' in result) {
@@ -64,7 +64,7 @@ function PasswordAuthContent() {
         // Server-side redirect happened, client will follow
         return;
       }
-      
+
       const errorMsg = error?.message || 'An unexpected error occurred';
       setErrorMessage(errorMsg);
       toast.error(errorMsg);

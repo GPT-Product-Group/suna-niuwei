@@ -27,12 +27,12 @@ function ResetPasswordContent() {
     }
   }, [code]);
 
-  const handleResetPassword = async (prevState: any, formData: FormData) => {
+  const handleResetPassword = async (formData: FormData) => {
     if (!code) {
       return { message: 'Invalid reset code' };
     }
 
-    const result = await resetPassword(prevState, formData);
+    const result = await resetPassword(null, formData);
 
     if (
       result &&
