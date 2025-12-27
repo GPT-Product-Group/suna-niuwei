@@ -48,6 +48,11 @@ export default function ActivateTrialPage() {
   const { data: maintenanceNotice, isLoading: maintenanceLoading } = useMaintenanceNoticeQuery();
   const { data: adminRoleData, isLoading: isCheckingAdminRole } = useAdminRole();
   const isAdmin = adminRoleData?.isAdmin ?? false;
+  const [origin, setOrigin] = useState('');
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   useEffect(() => {
     if (!isLoadingSubscription && !isLoadingTrial && accountState && trialStatus) {
@@ -71,12 +76,13 @@ export default function ActivateTrialPage() {
 
   const handleStartTrial = async () => {
     try {
+      const currentOrigin = origin || (typeof window !== 'undefined' ? window.location.origin : '');
       const result = await startTrialMutation.mutateAsync({
-        success_url: `${window.location.origin}/dashboard?trial=started`,
-        cancel_url: `${window.location.origin}/activate-trial`,
+        success_url: `${currentOrigin}/dashboard?trial=started`,
+        cancel_url: `${currentOrigin}/activate-trial`,
       });
 
-      if (result.checkout_url) {
+      if (result.checkout_url && typeof window !== 'undefined') {
         window.location.href = result.checkout_url;
       }
     } catch (error: any) {

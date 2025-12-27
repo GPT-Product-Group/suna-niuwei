@@ -695,7 +695,7 @@ function LegalContent() {
                         Privacy Policy
                       </h2>
                       <p className="text-sm text-muted-foreground mb-6">
-                        Last updated: {new Date().toLocaleDateString()}
+                        Last updated: 13 August 2024
                       </p>
 
                       <h3 className="text-lg font-medium tracking-tight">
