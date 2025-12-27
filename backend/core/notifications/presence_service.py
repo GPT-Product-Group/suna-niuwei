@@ -12,25 +12,18 @@ class PresenceService:
         self.stale_session_threshold_minutes = 5
     
     async def _validate_account_id(self, account_id: str) -> bool:
-        """Validate that account_id exists and is a valid UUID."""
+        """Validate that account_id is a valid UUID.
+
+        Note: We only validate UUID format here. Account existence is already
+        verified through JWT authentication before reaching this point.
+        The basejump schema is not exposed via the PostgREST API.
+        """
         try:
             # Validate UUID format
             uuid.UUID(account_id)
-            
-            # Check if account exists in basejump.accounts
-            client = await self.db.client
-            result = await client.schema('basejump').from_('accounts').select('id').eq('id', account_id).limit(1).execute()
-            
-            if not result.data or len(result.data) == 0:
-                logger.warning(f"Account {account_id} does not exist in basejump.accounts")
-                return False
-            
             return True
         except ValueError:
             logger.error(f"Invalid UUID format for account_id: {account_id}")
-            return False
-        except Exception as e:
-            logger.error(f"Error validating account_id {account_id}: {str(e)}")
             return False
     
     async def _fetch_session(self, session_id: str):

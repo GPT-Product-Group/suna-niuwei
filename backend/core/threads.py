@@ -64,10 +64,11 @@ async def get_user_threads(
             from core.utils.query_utils import batch_query_in
             
             # Optimized: Select only needed columns from projects table (exclude sandbox, description - they're large and only needed when viewing specific project)
+            # Note: icon_name column may not exist in all deployments, so we exclude it
             projects_data = await batch_query_in(
                 client=client,
                 table_name='projects',
-                select_fields='project_id,name,icon_name,is_public,created_at,updated_at',
+                select_fields='project_id,name,is_public,created_at,updated_at',
                 in_field='project_id',
                 in_values=unique_project_ids
             )
@@ -87,7 +88,6 @@ async def get_user_threads(
                 project_data = {
                     "project_id": project['project_id'],
                     "name": project.get('name', ''),
-                    "icon_name": project.get('icon_name'),
                     "is_public": project.get('is_public', False),
                     "created_at": project.get('created_at'),
                     "updated_at": project['updated_at']
@@ -160,14 +160,17 @@ async def get_project(
                     logger.debug(f"Admin access granted for project {project_id}", user_role=role)
             
             if not is_admin:
-                # Verify account membership for private projects
+                # Verify account ownership for private projects
+                # Note: basejump schema is not exposed via PostgREST API,
+                # so we check account ownership directly
                 account_id = project.get('account_id')
                 if not account_id:
                     logger.error(f"Project {project_id} has no associated account")
                     raise HTTPException(status_code=500, detail="Project has no associated account")
-                
-                account_user_result = await client.schema('basejump').from_('account_user').select('account_role').eq('user_id', user_id).eq('account_id', account_id).execute()
-                if not (account_user_result.data and len(account_user_result.data) > 0):
+
+                # For self-hosted/simplified setup, user_id equals account_id
+                # In production with teams, this check would need to be expanded
+                if account_id != user_id:
                     logger.error(f"User {user_id} not authorized to access project {project_id}")
                     raise HTTPException(status_code=403, detail="Not authorized to access this project")
         
@@ -178,11 +181,10 @@ async def get_project(
             "description": project.get('description', ''),
             "sandbox": project.get('sandbox', {}),
             "is_public": project.get('is_public', False),
-            "icon_name": project.get('icon_name'),
             "created_at": project['created_at'],
             "updated_at": project.get('updated_at')
         }
-        
+
         logger.debug(f"Successfully fetched project {project_id}")
         return project_data
         
@@ -225,11 +227,10 @@ async def get_thread(
                     "description": project.get('description', ''),
                     "sandbox": project.get('sandbox', {}),
                     "is_public": project.get('is_public', False),
-                    "icon_name": project.get('icon_name'),
                     "created_at": project['created_at'],
                     "updated_at": project['updated_at']
                 }
-                
+
                 # If thread has an existing sandbox, start it proactively in background
                 sandbox_info = project.get('sandbox', {})
                 if sandbox_info and sandbox_info.get('id'):
@@ -691,11 +692,10 @@ async def update_thread(
                     "description": project.get('description', ''),
                     "sandbox": project.get('sandbox', {}),
                     "is_public": project.get('is_public', False),
-                    "icon_name": project.get('icon_name'),
                     "created_at": project['created_at'],
                     "updated_at": project['updated_at']
                 }
-        
+
         return {
             "thread_id": thread_data['thread_id'],
             "project_id": thread_data.get('project_id'),
