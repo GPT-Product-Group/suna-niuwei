@@ -7,6 +7,23 @@ import { Badge } from '@/components/ui/badge';
 import { allAgents } from '../shared/data';
 import { IconRenderer } from '../shared/icon-renderer';
 import { userContext } from '../shared/context';
+import { useMemo } from 'react';
+
+// Pre-calculated positions for sparkles to avoid hydration mismatch
+const SPARKLE_POSITIONS = [
+  { left: '15%', top: '10%' },
+  { left: '85%', top: '20%' },
+  { left: '25%', top: '80%' },
+  { left: '75%', top: '85%' },
+  { left: '10%', top: '45%' },
+  { left: '90%', top: '55%' },
+  { left: '50%', top: '5%' },
+  { left: '45%', top: '95%' },
+  { left: '30%', top: '30%' },
+  { left: '70%', top: '70%' },
+  { left: '5%', top: '70%' },
+  { left: '95%', top: '30%' },
+];
 
 export const CompletionStep = () => {
   // Get the configured agents from global context
@@ -20,7 +37,7 @@ export const CompletionStep = () => {
     <div className="flex items-center justify-center min-h-[calc(100vh-200px)] relative overflow-hidden">
       {/* Background sparkles animation */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(12)].map((_, i) => (
+        {SPARKLE_POSITIONS.map((pos, i) => (
           <motion.div
             key={i}
             className="absolute"
@@ -36,10 +53,7 @@ export const CompletionStep = () => {
               repeat: Infinity,
               repeatDelay: 2
             }}
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
+            style={pos}
           >
             <Sparkles className="h-4 w-4 text-primary/30" />
           </motion.div>
