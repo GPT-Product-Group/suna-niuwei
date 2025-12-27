@@ -90,7 +90,7 @@ function LoginContent() {
     }
   }, [isExpired, expiredEmail]);
 
-  const handleAuth = async (prevState: any, formData: FormData) => {
+  const handleAuth = async (formData: FormData) => {
     markEmailAsUsed();
 
     const email = formData.get('email') as string;
@@ -106,7 +106,7 @@ function LoginContent() {
       formData.append('isDesktopApp', 'true');
     }
 
-    const result = await signUp(prevState, formData);
+    const result = await signUp(null, formData);
 
     // Magic link always returns success with message (no immediate redirect)
     if (result && typeof result === 'object' && 'success' in result && result.success) {
@@ -182,7 +182,7 @@ function LoginContent() {
     };
   };
 
-  const handleResendMagicLink = async (prevState: any, formData: FormData) => {
+  const handleResendMagicLink = async (formData: FormData) => {
     markEmailAsUsed();
 
     const email = expiredEmailState || formData.get('email') as string;
@@ -205,7 +205,7 @@ function LoginContent() {
       formData.append('isDesktopApp', 'true');
     }
 
-    const result = await resendMagicLink(prevState, formData);
+    const result = await resendMagicLink(null, formData);
 
     // Magic link always returns success with message (no immediate redirect)
     if (result && typeof result === 'object' && 'success' in result && result.success) {
