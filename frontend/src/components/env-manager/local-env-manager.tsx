@@ -1,5 +1,6 @@
 "use client";
 
+import { generateUUID } from "@/lib/utils/uuid";
 import { Eye, EyeOff, Plus, Trash } from "lucide-react";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
@@ -49,7 +50,7 @@ export function LocalEnvManager() {
   }
 
   const handleAddNewKey = () => {
-    setNewApiKeys([...newApiKeys, {key: "", value: "", id: crypto.randomUUID()}]);
+    setNewApiKeys([...newApiKeys, {key: "", value: "", id: generateUUID()}]);
   }
 
   const checkKeyIsDuplicate = (key: string) => {

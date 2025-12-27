@@ -22,6 +22,7 @@ import { isLocalMode } from '@/lib/config';
 import { toast } from 'sonner';
 import { ChatInput, ChatInputHandles } from '@/components/thread/chat-input/chat-input';
 import { normalizeFilenameToNFC } from '@/lib/utils/unicode';
+import { generateUUID } from '@/lib/utils/uuid';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { agentKeys } from '@/hooks/agents/keys';
 import { getAgents } from '@/hooks/agents/utils';
@@ -197,8 +198,8 @@ export function HeroSection() {
                 return new File([file], normalizedName, { type: file.type });
             });
             
-            const threadId = crypto.randomUUID();
-            const projectId = crypto.randomUUID();
+            const threadId = generateUUID();
+            const projectId = generateUUID();
             const trimmedMessage = message.trim();
             
             chatInputRef.current?.clearPendingFiles();

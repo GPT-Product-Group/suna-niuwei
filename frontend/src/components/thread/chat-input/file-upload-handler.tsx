@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/tooltip';
 import { UploadedFile } from './chat-input';
 import { normalizeFilenameToNFC } from '@/lib/utils/unicode';
+import { generateUUID } from '@/lib/utils/uuid';
 import { backendApi } from '@/lib/api-client';
 import JSZip from 'jszip';
 import {
@@ -105,7 +106,7 @@ const handleLocalFilesOptimistic = async (
 
   const newUploadedFiles: UploadedFile[] = processedFiles.map((file) => {
     const normalizedName = normalizeFilenameToNFC(file.name);
-    const fileId = crypto.randomUUID();
+    const fileId = generateUUID();
 
     return {
       name: normalizedName,
@@ -202,7 +203,7 @@ const handleLocalFiles = async (
 
   const newUploadedFiles: UploadedFile[] = filteredFiles.map((file) => {
     const normalizedName = normalizeFilenameToNFC(file.name);
-    const fileId = crypto.randomUUID();
+    const fileId = generateUUID();
 
     return {
       name: normalizedName,

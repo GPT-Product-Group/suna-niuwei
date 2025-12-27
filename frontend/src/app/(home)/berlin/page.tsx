@@ -9,6 +9,7 @@ import { useAuth } from '@/components/AuthProvider';
 import { useRouter } from 'next/navigation';
 import { optimisticAgentStart } from '@/lib/api/agents';
 import { normalizeFilenameToNFC } from '@/lib/utils/unicode';
+import { generateUUID } from '@/lib/utils/uuid';
 import { toast } from 'sonner';
 import { AgentRunLimitError, BillingError, ProjectLimitError, ThreadLimitError } from '@/lib/api/errors';
 import { usePricingModalStore } from '@/stores/pricing-modal-store';
@@ -91,8 +92,8 @@ export default function BerlinPage() {
         return new File([file], normalizedName, { type: file.type });
       });
       
-      const threadId = crypto.randomUUID();
-      const projectId = crypto.randomUUID();
+      const threadId = generateUUID();
+      const projectId = generateUUID();
       const trimmedMessage = message.trim();
       
       chatInputRef.current?.clearPendingFiles();

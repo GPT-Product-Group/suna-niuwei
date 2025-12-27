@@ -1,5 +1,6 @@
 'use client';
 
+import { generateUUID } from '@/lib/utils/uuid';
 import { backendApi } from '@/lib/api-client';
 import { useAuth } from '@/components/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
@@ -35,7 +36,7 @@ const DEBOUNCE_DELAY = 500; // Debounce rapid thread changes
 const DISABLE_PRESENCE = process.env.NEXT_PUBLIC_DISABLE_PRESENCE === 'true';
 
 function generateSessionId(): string {
-  return crypto.randomUUID();
+  return generateUUID();
 }
 
 export function PresenceProvider({ children }: { children: ReactNode }) {
