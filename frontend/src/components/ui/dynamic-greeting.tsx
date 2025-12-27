@@ -1,12 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-
-// Generate stable random indices on module load (persists until page refresh)
-const greetingTypeRandom = Math.random(); // 0-1, determines time-based vs random
-const greetingIndexRandom = Math.random(); // 0-1, determines which greeting in array
 
 interface DynamicGreetingProps {
   className?: string;
@@ -22,16 +18,30 @@ export function DynamicGreeting({ className }: DynamicGreetingProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [mounted, setMounted] = useState(false);
 
+  // Generate random values only on client side to avoid hydration mismatch
+  const greetingTypeRandom = useRef<number | null>(null);
+  const greetingIndexRandom = useRef<number | null>(null);
+
   useEffect(() => {
+    // Generate random values only once on client mount
+    if (greetingTypeRandom.current === null) {
+      greetingTypeRandom.current = Math.random();
+      greetingIndexRandom.current = Math.random();
+    }
     setMounted(true);
   }, []);
 
   // Compute greeting - recalculates when t changes (i.e., when language changes)
   const greeting = useMemo(() => {
+    // Return empty string during SSR, will be populated after mount
+    if (!mounted || greetingTypeRandom.current === null || greetingIndexRandom.current === null) {
+      return '';
+    }
+
     const hour = new Date().getHours();
-    
+
     // 40% chance time-based, 60% random
-    const useTimeBased = greetingTypeRandom < 0.4;
+    const useTimeBased = greetingTypeRandom.current < 0.4;
 
     if (useTimeBased) {
       if (hour >= 5 && hour < 12) {
@@ -40,20 +50,20 @@ export function DynamicGreeting({ className }: DynamicGreetingProps) {
           t('greetings.morning.1'),
           t('greetings.morning.2'),
         ];
-        return greetings[Math.floor(greetingIndexRandom * greetings.length)];
+        return greetings[Math.floor(greetingIndexRandom.current * greetings.length)];
       } else if (hour >= 12 && hour < 17) {
         const greetings = [
           t('greetings.afternoon.0'),
           t('greetings.afternoon.1'),
         ];
-        return greetings[Math.floor(greetingIndexRandom * greetings.length)];
+        return greetings[Math.floor(greetingIndexRandom.current * greetings.length)];
       } else {
         const greetings = [
           t('greetings.evening.0'),
           t('greetings.evening.1'),
           t('greetings.evening.2'),
         ];
-        return greetings[Math.floor(greetingIndexRandom * greetings.length)];
+        return greetings[Math.floor(greetingIndexRandom.current * greetings.length)];
       }
     }
 
@@ -74,8 +84,8 @@ export function DynamicGreeting({ className }: DynamicGreetingProps) {
       t('greetings.random.13'),
       t('greetings.random.14'),
     ];
-    return greetings[Math.floor(greetingIndexRandom * greetings.length)];
-  }, [t]);
+    return greetings[Math.floor(greetingIndexRandom.current * greetings.length)];
+  }, [t, mounted]);
 
   // Calculate lift amount based on distance from hovered letter
   const getLiftAmount = (index: number): number => {

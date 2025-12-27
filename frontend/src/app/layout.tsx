@@ -13,9 +13,17 @@ import { roobertMono } from './fonts/roobert-mono';
 import { Suspense, lazy } from 'react';
 import { I18nProvider } from '@/components/i18n-provider';
 
+// Check if running on Vercel (to avoid 404 errors for Vercel-specific scripts)
+const isVercel = process.env.VERCEL === '1' || process.env.NEXT_PUBLIC_VERCEL_ENV !== undefined;
+
 // Lazy load non-critical analytics and global components
-const Analytics = lazy(() => import('@vercel/analytics/react').then(mod => ({ default: mod.Analytics })));
-const SpeedInsights = lazy(() => import('@vercel/speed-insights/next').then(mod => ({ default: mod.SpeedInsights })));
+// Only load Vercel Analytics/SpeedInsights when running on Vercel platform
+const Analytics = isVercel
+  ? lazy(() => import('@vercel/analytics/react').then(mod => ({ default: mod.Analytics })))
+  : () => null;
+const SpeedInsights = isVercel
+  ? lazy(() => import('@vercel/speed-insights/next').then(mod => ({ default: mod.SpeedInsights })))
+  : () => null;
 const GoogleAnalytics = lazy(() => import('@next/third-parties/google').then(mod => ({ default: mod.GoogleAnalytics })));
 const GoogleTagManager = lazy(() => import('@next/third-parties/google').then(mod => ({ default: mod.GoogleTagManager })));
 const PostHogIdentify = lazy(() => import('@/components/posthog-identify').then(mod => ({ default: mod.PostHogIdentify })));
@@ -101,15 +109,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={`${roobert.variable} ${roobertMono.variable}`}>
       <head>
-        {/* Preload critical fonts for faster FCP - local fonts need crossOrigin for CORS */}
-        <link
-          rel="preload"
-          href="/fonts/roobert/RoobertUprightsVF.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        
+        {/* Note: Font preloading is handled automatically by Next.js localFont */}
+
         {/* DNS prefetch for analytics (loaded later but resolve DNS early) */}
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
