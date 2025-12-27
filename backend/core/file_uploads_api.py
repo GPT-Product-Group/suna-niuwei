@@ -29,12 +29,10 @@ async def regenerate_signed_link(
         db = DBConnection()
         client = await db.client
         
-        account_result = await client.schema("basejump").table('account_user').select('account_id').eq('user_id', user_id).execute()
-        if not account_result.data:
-            raise HTTPException(status_code=403, detail="User not found in any account")
-        
-        user_account_ids = [acc['account_id'] for acc in account_result.data]
-        
+        # In self-hosted setup, user_id equals account_id
+        # The basejump schema is not exposed via PostgREST API
+        user_account_ids = [user_id]
+
         if request.file_upload_id:
             file_upload_result = await client.table('file_uploads').select('*').eq('id', request.file_upload_id).execute()
             
@@ -110,12 +108,9 @@ async def get_file_upload(
         
         file_upload = file_upload_result.data[0]
         
-        account_result = await client.schema("basejump").table('account_user').select('account_id').eq('user_id', user_id).execute()
-        if not account_result.data:
-            raise HTTPException(status_code=403, detail="User not found in any account")
-        
-        user_account_ids = [acc['account_id'] for acc in account_result.data]
-        if file_upload['account_id'] not in user_account_ids:
+        # In self-hosted setup, user_id equals account_id
+        # The basejump schema is not exposed via PostgREST API
+        if file_upload['account_id'] != user_id:
             raise HTTPException(status_code=403, detail="Access denied to this file")
         
         return file_upload
