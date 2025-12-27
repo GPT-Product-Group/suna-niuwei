@@ -30,6 +30,7 @@ import { usePricingModalStore } from '@/stores/pricing-modal-store';
 import { useAgentSelection } from '@/stores/agent-selection-store';
 import { useThreadQuery } from '@/hooks/threads/use-threads';
 import { normalizeFilenameToNFC } from '@/lib/utils/unicode';
+import { generateUUID } from '@/lib/utils/uuid';
 import { toast } from 'sonner';
 import { useSunaModePersistence } from '@/stores/suna-modes-store';
 import { Button } from '../ui/button';
@@ -308,8 +309,8 @@ export function DashboardContent() {
         pendingFiles: pendingFiles.length,
       });
 
-      const threadId = crypto.randomUUID();
-      const projectId = crypto.randomUUID();
+      const threadId = generateUUID();
+      const projectId = generateUUID();
       
       chatInputRef.current?.clearPendingFiles();
       chatInputRef.current?.clearUploadedFiles();
