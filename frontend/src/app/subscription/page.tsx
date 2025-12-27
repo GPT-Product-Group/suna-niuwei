@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, Suspense, lazy } from 'react';
+import { useEffect, useState, Suspense, lazy } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';
@@ -45,6 +45,11 @@ export default function SubscriptionRequiredPage() {
   const { data: accountState, isLoading: isLoadingSubscription, refetch: refetchSubscription } = useAccountState({ enabled: true });
   const subscriptionData = accountState;
   const isAdmin = adminRoleData?.isAdmin ?? false;
+  const [origin, setOrigin] = useState('');
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   useEffect(() => {
     if (!isLoadingSubscription && subscriptionData) {
@@ -133,7 +138,7 @@ export default function SubscriptionRequiredPage() {
           </div>
         }>
           <PricingSection
-            returnUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/dashboard?subscription=activated`}
+            returnUrl={`${origin}/dashboard?subscription=activated`}
             showTitleAndTabs={false}
             onSubscriptionUpdate={handleSubscriptionUpdate}
           />

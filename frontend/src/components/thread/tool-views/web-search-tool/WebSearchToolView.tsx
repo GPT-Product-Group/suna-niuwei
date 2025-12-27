@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Search,
   CheckCircle,
@@ -34,6 +34,11 @@ export function WebSearchToolView({
 }: ToolViewProps) {
   const [expandedResults, setExpandedResults] = useState<Record<number, boolean>>({});
   const [currentQueryIndex, setCurrentQueryIndex] = useState(0);
+  const [currentDate, setCurrentDate] = useState<string>('');
+
+  useEffect(() => {
+    setCurrentDate(new Date().toLocaleDateString());
+  }, []);
 
   const {
     query,
@@ -369,10 +374,12 @@ export function WebSearchToolView({
                       {searchResults.length > 0 && (
                 <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200 mb-4 flex items-center justify-between">
                   <span>Search Results ({searchResults.length})</span>
+                  {currentDate && (
                   <Badge variant="outline" className="text-xs font-normal">
                     <Clock className="h-3 w-3 mr-1.5 opacity-70" />
-                    {new Date().toLocaleDateString()}
+                    {currentDate}
                   </Badge>
+                  )}
                 </div>
               )}
 

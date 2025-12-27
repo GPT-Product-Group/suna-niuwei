@@ -43,6 +43,7 @@ function LoginContent() {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [mounted, setMounted] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false); // GDPR requires explicit opt-in
+  const [origin, setOrigin] = useState('');
 
   const { wasLastMethod: wasEmailLastMethod, markAsUsed: markEmailAsUsed } = useAuthMethodTracking('email');
 
@@ -71,6 +72,7 @@ function LoginContent() {
 
   useEffect(() => {
     setMounted(true);
+    setOrigin(window.location.origin);
   }, []);
 
   useEffect(() => {
@@ -97,7 +99,7 @@ function LoginContent() {
     const finalReturnUrl = returnUrl || '/dashboard';
     formData.append('returnUrl', finalReturnUrl);
     // Use custom protocol for Electron, standard origin for web
-    formData.append('origin', isElectron() ? getAuthOrigin() : window.location.origin);
+    formData.append('origin', isElectron() ? getAuthOrigin() : origin);
     formData.append('acceptedTerms', acceptedTerms.toString());
     // Flag for Electron to use custom callback handling
     if (isElectron()) {
@@ -195,7 +197,7 @@ function LoginContent() {
     formData.append('email', email);
     formData.append('returnUrl', finalReturnUrl);
     // Use custom protocol for Electron, standard origin for web
-    formData.append('origin', isElectron() ? getAuthOrigin() : window.location.origin);
+    formData.append('origin', isElectron() ? getAuthOrigin() : origin);
     // If email is already known from expired link, assume terms were already accepted
     formData.append('acceptedTerms', 'true');
     // Flag for Electron to use custom callback handling
@@ -212,10 +214,12 @@ function LoginContent() {
         setLinkExpired(false);
         setRegistrationSuccess(true);
         // Clean up URL params
-        const params = new URLSearchParams(window.location.search);
-        params.delete('expired');
-        params.delete('email');
-        window.history.pushState({ path: window.location.pathname }, '', window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
+        if (typeof window !== 'undefined') {
+          const params = new URLSearchParams(window.location.search);
+          params.delete('expired');
+          params.delete('email');
+          window.history.pushState({ path: window.location.pathname }, '', window.location.pathname + (params.toString() ? '?' + params.toString() : ''));
+        }
         return result;
       }
     }
@@ -364,10 +368,12 @@ function LoginContent() {
               <button
                 onClick={() => {
                   setRegistrationSuccess(false);
-                  const params = new URLSearchParams(window.location.search);
-                  params.set('mode', 'signin');
-                  const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
-                  window.history.pushState({ path: newUrl }, '', newUrl);
+                  if (typeof window !== 'undefined') {
+                    const params = new URLSearchParams(window.location.search);
+                    params.set('mode', 'signin');
+                    const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+                    window.history.pushState({ path: newUrl }, '', newUrl);
+                  }
                 }}
                 className="text-primary hover:underline font-medium"
               >

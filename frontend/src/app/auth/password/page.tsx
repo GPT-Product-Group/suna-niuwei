@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import { AlertCircle, ArrowLeft, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -21,6 +21,11 @@ function PasswordAuthContent() {
   const { user, isLoading } = useAuth();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [origin, setOrigin] = useState('');
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -193,7 +198,7 @@ function PasswordAuthContent() {
                 {returnUrl && (
                   <input type="hidden" name="returnUrl" value={returnUrl} />
                 )}
-                <input type="hidden" name="origin" value={typeof window !== 'undefined' ? window.location.origin : ''} />
+                <input type="hidden" name="origin" value={origin} />
 
                 <div className="space-y-4 pt-4">
                   <SubmitButton
