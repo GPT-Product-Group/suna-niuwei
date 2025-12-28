@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from click.decorators import R
 from core.utils.config import config
 
-TRIAL_ENABLED = False
+TRIAL_ENABLED = True
 TRIAL_DURATION_DAYS = 7
 TRIAL_TIER = "tier_2_20"
 TRIAL_CREDITS = Decimal("5.00")
