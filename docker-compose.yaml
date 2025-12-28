@@ -1,34 +1,58 @@
 # ============================================================================
-# KORTIX SUPER WORKER DOCKER COMPOSE - LOCAL DEVELOPMENT
+# SUNA DOCKER COMPOSE - PRODUCTION WITH NGINX REVERSE PROXY
 # ============================================================================
-# This Docker Compose file runs Kortix Super Worker services (Backend, Worker, Frontend, Redis)
-#
-# ⚠️  IMPORTANT LIMITATION - LOCAL SUPABASE:
-# Currently, local Supabase (via `npx supabase start`) is NOT supported with
-# Docker Compose due to network configuration complexity.
-#
-# TODO: Integrate Supabase services directly into this compose file to enable
-#       full Docker-based local development with proper network configuration.
-#
-# CURRENT WORKAROUND:
-# - Use cloud Supabase for Docker Compose setup
-# - OR run everything manually (no Docker) to use local Supabase
+# This Docker Compose file runs Suna services with nginx for HTTPS support.
 #
 # Quick Start:
-#   docker compose up -d          # Start all services
-#   docker compose down           # Stop all services
-#   docker compose logs -f        # View all logs
+#   1. First time setup (get SSL certificate):
+#      docker compose up -d nginx frontend backend worker redis
+#      docker compose run --rm certbot certonly --webroot -w /var/www/certbot \
+#        --email your-email@example.com -d suna.excelmaster.ai --agree-tos --no-eff-email
+#
+#   2. After certificate is obtained, update nginx to use SSL config:
+#      Edit nginx service to use nginx.conf instead of nginx-init.conf
+#      docker compose up -d --force-recreate nginx
+#
+#   3. Normal operation:
+#      docker compose up -d          # Start all services
+#      docker compose down           # Stop all services
+#      docker compose logs -f        # View all logs
 #
 # Access:
-#   - Kortix Super Worker Frontend:     http://localhost:3000
-#   - Kortix Super Worker Backend API:  http://localhost:8000
+#   - Frontend: https://suna.excelmaster.ai
+#   - Backend API: https://suna.excelmaster.ai/v1
 # ============================================================================
 
 services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Use nginx-init.conf initially (before SSL cert exists)
+      # After getting cert, change to nginx.conf
+      - ./nginx/nginx-init.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/www:/var/www/certbot:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/www:/var/www/certbot
+      - ./certbot/conf:/etc/letsencrypt
+    # Run this command to get initial certificate:
+    # docker compose run --rm certbot certonly --webroot -w /var/www/certbot \
+    #   --email your-email@example.com -d suna.excelmaster.ai --agree-tos --no-eff-email
+
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
       - ./backend/services/docker/redis.conf:/usr/local/etc/redis/redis.conf:ro
@@ -38,6 +62,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+    restart: unless-stopped
 
   backend:
     image: ghcr.io/suna-ai/suna-backend:latest
@@ -46,7 +71,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
       - ./backend/.env:/app/.env:ro
     environment:
@@ -59,6 +84,7 @@ services:
         condition: service_healthy
       worker:
         condition: service_started
+    restart: unless-stopped
 
   worker:
     image: ghcr.io/suna-ai/suna-backend:latest
@@ -77,6 +103,7 @@ services:
     depends_on:
       redis:
         condition: service_healthy
+    restart: unless-stopped
 
   frontend:
     init: true
@@ -84,13 +111,14 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-http://localhost:8000/v1}
-        NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL:-http://localhost:3000}
-        NEXT_PUBLIC_ENV_MODE: ${NEXT_PUBLIC_ENV_MODE:-LOCAL}
+        NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-https://suna.excelmaster.ai/v1}
+        NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL:-https://suna.excelmaster.ai}
+        NEXT_PUBLIC_ENV_MODE: ${NEXT_PUBLIC_ENV_MODE:-production}
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       - backend
+    restart: unless-stopped
 
 volumes:
   redis_data:
