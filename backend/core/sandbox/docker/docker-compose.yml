@@ -32,10 +32,11 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
     restart: unless-stopped
     shm_size: '2gb'
-    cap_add:
-      - SYS_ADMIN
-    security_opt:
-      - seccomp=unconfined
+    # NOTE: SYS_ADMIN capability removed to prevent Azure VM public IP connectivity issues.
+    # The container was modifying iptables/nftables rules which broke Azure's SNAT.
+    # Chrome runs with --no-sandbox flag so SYS_ADMIN is not required.
+    # If you need SYS_ADMIN for specific functionality, use a custom seccomp profile
+    # that blocks network-related syscalls (iptables, nftables modifications).
     tmpfs:
       - /tmp
     healthcheck:
