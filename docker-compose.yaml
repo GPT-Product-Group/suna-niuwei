@@ -4,19 +4,23 @@
 # This Docker Compose file runs Suna services with nginx for HTTPS support.
 #
 # Quick Start:
-#   1. First time setup (get SSL certificate):
-#      docker compose up -d nginx frontend backend worker redis
+#   1. Start all services:
+#      docker compose up -d
+#      (nginx will auto-create a temporary self-signed certificate if needed)
+#
+#   2. Get Let's Encrypt certificate (first time only):
 #      docker compose run --rm certbot certonly --webroot -w /var/www/certbot \
 #        --email your-email@example.com -d suna.excelmaster.ai --agree-tos --no-eff-email
-#
-#   2. After certificate is obtained, update nginx to use SSL config:
-#      Edit nginx service to use nginx.conf instead of nginx-init.conf
-#      docker compose up -d --force-recreate nginx
+#      docker compose restart nginx
 #
 #   3. Normal operation:
 #      docker compose up -d          # Start all services
 #      docker compose down           # Stop all services
 #      docker compose logs -f        # View all logs
+#
+#   4. Certificate renewal (run periodically or via cron):
+#      docker compose run --rm certbot renew --quiet
+#      docker compose exec nginx nginx -s reload
 #
 # Access:
 #   - Frontend: https://suna.excelmaster.ai
@@ -30,11 +34,12 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      # Use nginx-init.conf initially (before SSL cert exists)
-      # After getting cert, change to nginx.conf
-      - ./nginx/nginx-init.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/docker-entrypoint.sh:/custom-entrypoint.sh:ro
       - ./certbot/www:/var/www/certbot:ro
-      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/conf:/etc/letsencrypt
+    entrypoint: ["/bin/sh", "/custom-entrypoint.sh"]
+    command: ["nginx", "-g", "daemon off;"]
     depends_on:
       - frontend
       - backend
@@ -45,9 +50,10 @@ services:
     volumes:
       - ./certbot/www:/var/www/certbot
       - ./certbot/conf:/etc/letsencrypt
-    # Run this command to get initial certificate:
-    # docker compose run --rm certbot certonly --webroot -w /var/www/certbot \
-    #   --email your-email@example.com -d suna.excelmaster.ai --agree-tos --no-eff-email
+    # This service is used for certificate operations. Run manually:
+    # Get certificate:  docker compose run --rm certbot certonly --webroot -w /var/www/certbot --email your-email@example.com -d suna.excelmaster.ai --agree-tos --no-eff-email
+    # Renew certificate: docker compose run --rm certbot renew
+    entrypoint: "/bin/sh -c 'echo \"Certbot ready. Use docker compose run --rm certbot <command> to manage certificates.\"; trap exit TERM; while :; do sleep 1d; done'"
 
   redis:
     image: redis:7-alpine
