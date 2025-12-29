@@ -1,11 +1,11 @@
 import { createClient } from '@/lib/supabase/client';
 import { handleApiError } from '../error-handler';
-import { backendApi } from '../api-client';
+import { backendApi, getApiUrl } from '../api-client';
 import { BillingError, AgentRunLimitError, ProjectLimitError, ThreadLimitError, NoAccessTokenAvailableError, RequestTooLargeError, parseTierRestrictionError } from './errors';
 import { nonRunningAgentRuns, activeStreams, cleanupEventSource } from './streaming';
 import { Message } from './threads';
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+const API_URL = getApiUrl();
 
 export type AgentRun = {
   id: string;

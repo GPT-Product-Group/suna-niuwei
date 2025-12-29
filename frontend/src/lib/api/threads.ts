@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/client';
 import { handleApiError } from '../error-handler';
-import { backendApi } from '../api-client';
+import { backendApi, getApiUrl } from '../api-client';
 
 export type ThreadStatus = 'pending' | 'initializing' | 'ready' | 'error';
 
@@ -340,10 +340,10 @@ export const createThread = async (projectId: string): Promise<Thread> => {
     throw new Error('You must be logged in to create a thread');
   }
 
-  const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  const apiUrl = getApiUrl();
 
   // Use backend API endpoint - it handles project creation as well
-  const response = await fetch(`${API_URL}/threads`, {
+  const response = await fetch(`${apiUrl}/threads`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -381,10 +381,10 @@ export const addUserMessage = async (
       throw new NoAccessTokenAvailableError();
     }
 
-    const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const apiUrl = getApiUrl();
 
     // Use backend API endpoint with auth handling
-    const response = await fetch(`${API_URL}/threads/${threadId}/messages/add`, {
+    const response = await fetch(`${apiUrl}/threads/${threadId}/messages/add`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -426,7 +426,7 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
     const supabase = createClient();
     const { data: { session } } = await supabase.auth.getSession();
 
-    const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const apiUrl = getApiUrl();
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -439,7 +439,7 @@ export const getMessages = async (threadId: string): Promise<Message[]> => {
     const useOptimized = shouldUseOptimizedMessages();
 
     const response = await fetch(
-      `${API_URL}/threads/${threadId}/messages?order=asc&optimized=${useOptimized}`,
+      `${apiUrl}/threads/${threadId}/messages?order=asc&optimized=${useOptimized}`,
       {
       headers,
       cache: 'no-store',

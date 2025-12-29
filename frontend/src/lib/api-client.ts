@@ -3,7 +3,8 @@ import { handleApiError, handleNetworkError, ErrorContext, ApiError } from './er
 import { parseTierRestrictionError, RequestTooLargeError } from './api/errors';
 
 // Get API URL - use relative URL for same-origin requests when configured
-const getApiUrl = (): string => {
+// Export this function so other files can use it consistently
+export const getApiUrl = (): string => {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
 
   // If the URL contains 'localhost', use relative URL for browser requests
