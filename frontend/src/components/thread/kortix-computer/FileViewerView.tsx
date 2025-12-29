@@ -65,11 +65,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { fileQueryKeys } from '@/hooks/files/use-file-queries';
 import { VersionBanner } from './VersionBanner';
 import { FileDownloadButton } from '../tool-views/shared/FileDownloadButton';
+import { getApiUrl } from '@/lib/api-client';
 
 
 
 // Define API_URL
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+const API_URL = getApiUrl();
 
 /**
  * Normalize a file path to ensure it starts with /workspace
@@ -606,7 +607,7 @@ export function FileViewerView({
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/sandboxes/${sandboxId}/files`,
+        `${API_URL}/sandboxes/${sandboxId}/files`,
         {
           method: 'PUT',
           headers: {
@@ -681,7 +682,7 @@ export function FileViewerView({
               return;
             }
             const response = await fetch(
-              `${process.env.NEXT_PUBLIC_BACKEND_URL}/sandboxes/${sandboxId}/files/content?path=${encodeURIComponent(filePath)}`,
+              `${API_URL}/sandboxes/${sandboxId}/files/content?path=${encodeURIComponent(filePath)}`,
               { headers: { 'Authorization': `Bearer ${session?.access_token}` } }
             );
 
@@ -709,7 +710,7 @@ export function FileViewerView({
         return;
       }
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/sandboxes/${sandboxId}/files/content?path=${encodeURIComponent(filePath)}`,
+        `${API_URL}/sandboxes/${sandboxId}/files/content?path=${encodeURIComponent(filePath)}`,
         { headers: { 'Authorization': `Bearer ${session?.access_token}` } }
       );
 

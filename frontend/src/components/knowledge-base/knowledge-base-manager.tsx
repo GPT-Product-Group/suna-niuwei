@@ -43,10 +43,10 @@ import { EditSummaryModal } from './edit-summary-modal';
 import { KBDeleteConfirmDialog } from './kb-delete-confirm-dialog';
 import { useKnowledgeFolders, type Folder, type Entry } from '@/hooks/knowledge-base/use-folders';
 import { FileNameValidator } from '@/lib/validation';
-import { backendApi } from '@/lib/api-client';
+import { backendApi, getApiUrl } from '@/lib/api-client';
 import { createClient } from '@/lib/supabase/client';
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+const API_URL = getApiUrl();
 
 interface TreeItem {
     id: string;

@@ -2,8 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import { backendApi } from '@/lib/api-client';
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-
 export interface TriggerWithAgent {
   trigger_id: string;
   agent_id: string;

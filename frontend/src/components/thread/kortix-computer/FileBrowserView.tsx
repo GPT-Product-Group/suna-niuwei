@@ -51,8 +51,9 @@ import { useKortixComputerStore } from '@/stores/kortix-computer-store';
 import { Badge } from '@/components/ui/badge';
 import { VersionBanner } from './VersionBanner';
 import { KortixComputerHeader } from './KortixComputerHeader';
+import { getApiUrl } from '@/lib/api-client';
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+const API_URL = getApiUrl();
 
 interface FileBrowserViewProps {
   sandboxId: string;
@@ -298,7 +299,7 @@ export function FileBrowserView({
               continue;
             }
             const response = await fetch(
-              `${process.env.NEXT_PUBLIC_BACKEND_URL}/sandboxes/${sandboxId}/files/content?path=${encodeURIComponent(file.path)}`,
+              `${API_URL}/sandboxes/${sandboxId}/files/content?path=${encodeURIComponent(file.path)}`,
               {
                 headers: { 'Authorization': `Bearer ${session.access_token}` }
               }
@@ -332,7 +333,7 @@ export function FileBrowserView({
                   continue;
                 }
                 const fallbackResponse = await fetch(
-                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/sandboxes/${sandboxId}/files/content?path=${encodeURIComponent(file.path)}`,
+                  `${API_URL}/sandboxes/${sandboxId}/files/content?path=${encodeURIComponent(file.path)}`,
                   { headers: { 'Authorization': `Bearer ${session.access_token}` } }
                 );
                 if (fallbackResponse.ok) {

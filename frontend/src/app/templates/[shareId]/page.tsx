@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { motion, useScroll } from 'framer-motion';
-import { backendApi } from '@/lib/api-client';
+import { backendApi, getApiUrl } from '@/lib/api-client';
 import {
   Download,
   Share2,
@@ -100,8 +100,7 @@ const IntegrationIcon: React.FC<{
     if (extractedSlug && !hasError) {
       setIsLoading(true);
       // Use relative URL for browser requests when localhost is configured
-      const configuredUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000/v1';
-      const backendUrl = typeof window !== 'undefined' && configuredUrl.includes('localhost') ? '/api/v1' : configuredUrl;
+      const backendUrl = getApiUrl();
       fetch(`${backendUrl}/composio/toolkits/${extractedSlug}/icon`)
         .then(res => res.json())
         .then(data => {
@@ -248,8 +247,7 @@ export default function TemplateSharePage() {
     queryKey: ['template-public', templateId],
     queryFn: async () => {
       // Use relative URL for browser requests when localhost is configured
-      const configuredUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000/v1';
-      const backendUrl = typeof window !== 'undefined' && configuredUrl.includes('localhost') ? '/api/v1' : configuredUrl;
+      const backendUrl = getApiUrl();
       const response = await fetch(`${backendUrl}/templates/public/${templateId}`);
       if (!response.ok) {
         throw new Error('Template not found');

@@ -77,6 +77,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useEditorState, type Editor } from '@tiptap/react';
 import { exportDocument, type ExportFormat } from '@/lib/utils/document-export';
+import { getApiUrl } from '@/lib/api-client';
 
 interface MarkdownToolbarProps {
   editor: Editor;
@@ -343,7 +344,7 @@ export function MarkdownToolbar({
       return null;
     }
 
-    const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+    const API_URL = getApiUrl();
     
     try {
       const supabase = createClient();

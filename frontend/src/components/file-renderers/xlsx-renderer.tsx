@@ -22,6 +22,7 @@ import {
   Filter,
   ChevronDown,
 } from 'lucide-react';
+import { getApiUrl } from '@/lib/api-client';
 
 interface XlsxRendererProps {
   content?: string | null;
@@ -335,7 +336,7 @@ export function XlsxRenderer({
             normalizedPath = `/workspace/${xlsxPath.startsWith('/') ? xlsxPath.substring(1) : xlsxPath}`;
           }
           
-          const url = new URL(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sandboxes/${resolvedSandboxId}/files/content`);
+          const url = new URL(`${getApiUrl()}/sandboxes/${resolvedSandboxId}/files/content`);
           url.searchParams.append('path', normalizedPath);
           
           const response = await fetch(url.toString(), {

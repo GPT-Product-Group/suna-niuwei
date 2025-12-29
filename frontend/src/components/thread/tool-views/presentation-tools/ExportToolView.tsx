@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/AuthProvider';
 import { useDownloadRestriction } from '@/hooks/billing';
 import { cn } from '@/lib/utils';
+import { getApiUrl } from '@/lib/api-client';
 
 interface ExportToolViewProps extends ToolViewProps {
   onFileClick?: (filePath: string) => void;
@@ -167,7 +168,7 @@ export function ExportToolView({
       }
       
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/sandboxes/${project.sandbox.id}/files/content?path=${encodeURIComponent(exportData.download_url)}`,
+        `${getApiUrl()}/sandboxes/${project.sandbox.id}/files/content?path=${encodeURIComponent(exportData.download_url)}`,
         { headers }
       );
       

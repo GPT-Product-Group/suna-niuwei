@@ -24,8 +24,9 @@ import {
   isExtractableArchive,
   formatFileSize,
 } from '@/lib/constants/upload-limits';
+import { getApiUrl } from '@/lib/api-client';
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+const API_URL = getApiUrl();
 
 const ALLOWED_EXTENSIONS_STRING = ALLOWED_EXTENSIONS.join(',');
 

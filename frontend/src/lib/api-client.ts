@@ -16,6 +16,24 @@ export const getApiUrl = (): string => {
   return backendUrl;
 };
 
+// Get the direct backend URL for cases where the Next.js proxy can't be used
+// (e.g., WebSocket connections, sendBeacon, direct file downloads)
+// This returns an absolute URL that works in Docker deployments
+export const getDirectBackendUrl = (): string => {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+
+  // For browser environments with localhost configured, use the current host with backend port
+  // This allows direct connections to work in Docker deployments where the user
+  // accesses the frontend via their host machine's IP
+  if (typeof window !== 'undefined' && backendUrl.includes('localhost')) {
+    const protocol = window.location.protocol;
+    return `${protocol}//${window.location.hostname}:8000`;
+  }
+
+  // Remove /v1 suffix if present for direct connections
+  return backendUrl.replace(/\/v1\/?$/, '');
+};
+
 const API_URL = getApiUrl();
 
 export interface ApiClientOptions {
