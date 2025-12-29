@@ -12,8 +12,10 @@ export async function GET(request: NextRequest) {
       return new Response('Missing shareId parameter', { status: 400 });
     }
 
+    // Use internal backend URL for server-side requests (Docker network)
+    const backendUrl = process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://backend:8000/v1';
     const templateResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000/v1'}/templates/public/${shareId}`
+      `${backendUrl}/templates/public/${shareId}`
     );
 
     if (!templateResponse.ok) {

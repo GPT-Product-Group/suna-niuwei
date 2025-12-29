@@ -1162,8 +1162,9 @@ function MultiSelectToolbar({
         }))
       );
 
-      // Send to backend - use correct backend URL
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      // Send to backend - use relative URL for browser requests when localhost is configured
+      const configuredUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+      const backendUrl = typeof window !== 'undefined' && configuredUrl.includes('localhost') ? '/api' : configuredUrl.replace(/\/v1\/?$/, '');
       const response = await fetch(`${backendUrl}/canvas-ai/merge`, {
         method: 'POST',
         headers: {

@@ -14,7 +14,8 @@ export async function POST(
       }
     });
     
-    const backendUrl = process.env.BACKEND_URL || 'http://localhost:8000/v1';
+    // Use internal backend URL for server-side requests (Docker network)
+    const backendUrl = process.env.INTERNAL_BACKEND_URL || process.env.BACKEND_URL || 'http://backend:8000/v1';
     const targetUrl = `${backendUrl}/triggers/${triggerId}/webhook`;
     const response = await fetch(targetUrl, {
       method: 'POST',

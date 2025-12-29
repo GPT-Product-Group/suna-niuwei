@@ -72,7 +72,19 @@ const nextConfig = (): NextConfig => ({
   },
   
   async rewrites() {
+    // Backend URL for reverse proxy:
+    // - In Docker: use internal network URL (backend:8000)
+    // - In development: use localhost:8000
+    // - In production: this rewrite won't be used if NEXT_PUBLIC_BACKEND_URL is set to the actual API URL
+    const internalBackendUrl = process.env.INTERNAL_BACKEND_URL || 'http://backend:8000';
+
     return [
+      // Proxy API calls to backend (allows same-origin requests from browser)
+      // This enables the frontend to make API calls without CORS issues
+      {
+        source: '/api/v1/:path*',
+        destination: `${internalBackendUrl}/v1/:path*`,
+      },
       {
         source: '/ingest/static/:path*',
         destination: 'https://eu-assets.i.posthog.com/static/:path*',
