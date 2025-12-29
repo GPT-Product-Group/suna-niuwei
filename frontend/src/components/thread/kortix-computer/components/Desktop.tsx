@@ -29,6 +29,7 @@ import { FileInfoContent, FileInfo } from './FileInfoContent';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/components/AuthProvider';
+import { getApiUrl } from '@/lib/api-client';
 
 const convertToolName = (toolName: string) => {
   if (toolName.includes('_')) {
@@ -663,7 +664,7 @@ export const SandboxDesktop = memo(function SandboxDesktop({
     }
     
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/sandboxes/${sandboxId}/terminal/execute`, {
+      const response = await fetch(`${getApiUrl()}/sandboxes/${sandboxId}/terminal/execute`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

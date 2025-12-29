@@ -1,5 +1,6 @@
 import { ToolCallData, ToolResultData } from '../types';
 import { normalizeContentToString } from '../utils';
+import { getApiUrl } from '@/lib/api-client';
 
 export interface SeeImageData {
   filePath: string | null;
@@ -235,7 +236,7 @@ export function constructImageUrl(filePath: string, project?: { sandbox?: { sand
       normalizedPath = `/workspace/${normalizedPath.startsWith('/') ? normalizedPath.substring(1) : normalizedPath}`;
     }
     
-    const apiEndpoint = `${process.env.NEXT_PUBLIC_BACKEND_URL}/sandboxes/${sandboxId}/files/content?path=${encodeURIComponent(normalizedPath)}`;
+    const apiEndpoint = `${getApiUrl()}/sandboxes/${sandboxId}/files/content?path=${encodeURIComponent(normalizedPath)}`;
     return apiEndpoint;
   }
   

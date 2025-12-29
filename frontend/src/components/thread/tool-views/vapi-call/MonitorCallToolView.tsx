@@ -10,6 +10,7 @@ import { useVapiCallRealtime } from '@/hooks/integrations';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
+import { getApiUrl } from '@/lib/api-client';
 
 interface MonitorCallData {
   call_id: string;
@@ -110,7 +111,7 @@ export function MonitorCallToolView({
     const setupSubscription = async () => {
       // First, do an initial fetch to get current data via backend API
       try {
-        const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+        const API_URL = getApiUrl();
         const { data: { session } } = await supabase.auth.getSession();
         
         const headers: Record<string, string> = {
@@ -197,7 +198,7 @@ export function MonitorCallToolView({
       if (!initialData?.call_id) return null;
       
       try {
-        const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+        const API_URL = getApiUrl();
         const supabase = createClient();
         const { data: { session } } = await supabase.auth.getSession();
         

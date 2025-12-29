@@ -3,8 +3,9 @@ import { saveAs } from 'file-saver';
 import TurndownService from 'turndown';
 import { gfm } from 'turndown-plugin-gfm';
 import { createClient } from '@/lib/supabase/client';
+import { getApiUrl } from '@/lib/api-client';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+const BACKEND_URL = getApiUrl();
 
 export type ExportFormat = 'pdf' | 'docx' | 'html' | 'markdown';
 

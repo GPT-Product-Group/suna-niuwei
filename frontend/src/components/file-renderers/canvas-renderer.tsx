@@ -51,6 +51,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { useAuth } from '@/components/AuthProvider';
+import { getApiUrl } from '@/lib/api-client';
 
 // OCR detected text region with polygon bounding box
 interface TextRegion {
@@ -131,7 +132,7 @@ function getSandboxFileUrl(sandboxId: string | undefined, path: string): string 
   if (normalizedPath.startsWith('/')) normalizedPath = normalizedPath.substring(1);
   if (normalizedPath.startsWith('workspace/')) normalizedPath = normalizedPath.substring(10);
   normalizedPath = `/workspace/${normalizedPath}`;
-  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+  const baseUrl = getApiUrl();
   return `${baseUrl}/sandboxes/${sandboxId}/files/content?path=${encodeURIComponent(normalizedPath)}`;
 }
 
@@ -538,7 +539,7 @@ function FloatingToolbar({
       const imageBase64 = await getImageAsBase64(element.src);
 
       // Call backend OCR endpoint
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/canvas-ai/ocr`, {
+      const response = await fetch(`${getApiUrl()}/canvas-ai/ocr`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -742,7 +743,7 @@ function FloatingToolbar({
       const imageBase64 = await getImageAsBase64(element.src);
 
       // Call backend Canvas AI API
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/canvas-ai/process`, {
+      const response = await fetch(`${getApiUrl()}/canvas-ai/process`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -1163,8 +1164,7 @@ function MultiSelectToolbar({
       );
 
       // Send to backend - use relative URL for browser requests when localhost is configured
-      const configuredUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-      const backendUrl = typeof window !== 'undefined' && configuredUrl.includes('localhost') ? '/api' : configuredUrl.replace(/\/v1\/?$/, '');
+      const backendUrl = getApiUrl();
       const response = await fetch(`${backendUrl}/canvas-ai/merge`, {
         method: 'POST',
         headers: {
@@ -1924,7 +1924,7 @@ export function CanvasRenderer({ content, filePath, fileName, sandboxId, classNa
     setGeneratedPreviews([]);
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/canvas-ai/generate`, {
+      const response = await fetch(`${getApiUrl()}/canvas-ai/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2283,7 +2283,7 @@ export function CanvasRenderer({ content, filePath, fileName, sandboxId, classNa
                 }
 
                 // Call backend API for SVG conversion
-                const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/canvas-ai/convert-svg`, {
+                const response = await fetch(`${getApiUrl()}/canvas-ai/convert-svg`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',

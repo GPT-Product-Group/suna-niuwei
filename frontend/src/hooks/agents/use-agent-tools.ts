@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
+import { getApiUrl } from '@/lib/api-client';
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+const API_URL = getApiUrl();
 
 export interface AgentTool {
   name: string;

@@ -1,7 +1,7 @@
 'use client';
 
 import { generateUUID } from '@/lib/utils/uuid';
-import { backendApi } from '@/lib/api-client';
+import { backendApi, getDirectBackendUrl } from '@/lib/api-client';
 import { useAuth } from '@/components/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
 import { RealtimeChannel } from '@supabase/supabase-js';
@@ -256,7 +256,7 @@ export function PresenceProvider({ children }: { children: ReactNode }) {
     if (DISABLE_PRESENCE || typeof navigator === 'undefined' || !sessionId) {
       return;
     }
-    const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const apiUrl = getDirectBackendUrl();
     if (!apiUrl || !session?.access_token) {
       return;
     }

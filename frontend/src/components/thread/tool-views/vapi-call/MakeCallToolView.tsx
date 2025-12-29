@@ -10,6 +10,7 @@ import { useVapiCallRealtime } from '@/hooks/integrations';
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getApiUrl } from '@/lib/api-client';
 
 export function MakeCallToolView({
   toolCall,
@@ -36,14 +37,14 @@ export function MakeCallToolView({
       if (!callData?.call_id) return null;
       
       try {
-        const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+        const API_URL = getApiUrl();
         const supabase = createClient();
         const { data: { session } } = await supabase.auth.getSession();
-        
+
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
         };
-        
+
         if (session?.access_token) {
           headers['Authorization'] = `Bearer ${session.access_token}`;
         }
