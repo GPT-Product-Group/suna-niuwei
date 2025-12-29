@@ -5,6 +5,7 @@ from core.services.supabase import DBConnection
 from core.services.llm import make_llm_api_call
 from .logger import logger
 from .icon_generator import RELEVANT_ICONS
+from .config import config
 
 # Project categories for analytics classification (based on actual usage data)
 PROJECT_CATEGORIES = [
@@ -35,7 +36,7 @@ async def generate_and_update_project_name(project_id: str, prompt: str):
         db_conn = DBConnection()
         client = await db_conn.client
 
-        model_name = "openai/gpt-5-nano-2025-08-07"
+        model_name = config.RESOLVED_UTILITY_MODEL
         
         # Use pre-loaded Lucide React icons
         relevant_icons = RELEVANT_ICONS
