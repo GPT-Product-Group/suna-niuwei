@@ -61,6 +61,12 @@ services:
         condition: service_healthy
       worker:
         condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v1/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   worker:
     image: ghcr.io/suna-ai/suna-backend:latest
@@ -98,7 +104,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 volumes:
   redis_data:

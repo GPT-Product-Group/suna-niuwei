@@ -63,17 +63,17 @@ async def get_queue_metrics() -> dict:
 async def publish_to_cloudwatch(queue_depth: int) -> bool:
     """
     Publish queue depth metric to CloudWatch for ECS auto-scaling.
-    
+
     Args:
         queue_depth: Number of jobs in the queue
-        
+
     Returns:
         True if published successfully, False otherwise
     """
     cloudwatch = _get_cloudwatch_client()
     if cloudwatch is None:
         return False
-    
+
     try:
         cloudwatch.put_metric_data(
             Namespace='Kortix',
@@ -89,7 +89,12 @@ async def publish_to_cloudwatch(queue_depth: int) -> bool:
         logger.debug(f"Published queue depth to CloudWatch: {queue_depth}")
         return True
     except Exception as e:
-        logger.error(f"Failed to publish queue metrics to CloudWatch: {e}")
+        error_str = str(e).lower()
+        # Don't log as error if credentials are simply not configured
+        if 'credentials' in error_str or 'no credentials' in error_str:
+            logger.debug(f"CloudWatch queue metrics disabled (no AWS credentials configured)")
+        else:
+            logger.error(f"Failed to publish queue metrics to CloudWatch: {e}")
         return False
 
 
