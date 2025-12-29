@@ -27,10 +27,20 @@ class PresenceService:
             return False
     
     async def _fetch_session(self, session_id: str):
+        """Fetch a session from the database, returning None if not found."""
         client = await self.db.client
-        return await client.table('user_presence_sessions').select('*').eq(
-            'session_id', session_id
-        ).maybe_single().execute()
+        try:
+            return await client.table('user_presence_sessions').select('*').eq(
+                'session_id', session_id
+            ).maybe_single().execute()
+        except Exception as e:
+            # Handle 204 "No Content" response - this means the session doesn't exist
+            # PostgREST returns 204 when no rows match, which is expected for new sessions
+            error_str = str(e).lower()
+            if '204' in error_str or 'missing response' in error_str:
+                logger.debug(f"No existing session found for {session_id} (new session)")
+                return None
+            raise
 
     async def _upsert_session(
         self,

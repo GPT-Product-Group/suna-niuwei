@@ -221,7 +221,12 @@ async def publish_to_cloudwatch(metrics: dict) -> bool:
         logger.debug(f"Published worker metrics to CloudWatch: {metrics.get('active_workers')} workers, {metrics.get('busy_threads')}/{metrics.get('total_threads')} threads busy ({metrics.get('utilization_percent')}%)")
         return True
     except Exception as e:
-        logger.error(f"Failed to publish worker metrics to CloudWatch: {e}")
+        error_str = str(e).lower()
+        # Don't log as error if credentials are simply not configured
+        if 'credentials' in error_str or 'no credentials' in error_str:
+            logger.debug(f"CloudWatch worker metrics disabled (no AWS credentials configured)")
+        else:
+            logger.error(f"Failed to publish worker metrics to CloudWatch: {e}")
         return False
 
 
