@@ -300,6 +300,15 @@ class Configuration:
     OPENROUTER_API_BASE: Optional[str] = "https://openrouter.ai/api/v1"
     OPENAI_COMPATIBLE_API_KEY: Optional[str] = None
     OPENAI_COMPATIBLE_API_BASE: Optional[str] = None
+
+    # Azure OpenAI configuration
+    AZURE_API_KEY: Optional[str] = None
+    AZURE_API_BASE: Optional[str] = None  # e.g., https://<resource-name>.openai.azure.com/
+    AZURE_API_VERSION: Optional[str] = "2024-02-01"
+
+    # Utility model for internal tasks (project naming, icon generation, etc.)
+    # Supports: openai/gpt-4o-mini, azure/<deployment-name>, anthropic/claude-3-haiku, etc.
+    UTILITY_MODEL: Optional[str] = None  # If not set, will auto-detect from available API keys
     OR_SITE_URL: Optional[str] = "https://www.kortix.com"
     OR_APP_NAME: Optional[str] = "Kortix AI"
     
@@ -378,6 +387,45 @@ class Configuration:
     # Always False in production, regardless of environment variable
     _DEBUG_SAVE_LLM_IO: Optional[bool] = True
     
+    @property
+    def RESOLVED_UTILITY_MODEL(self) -> str:
+        """
+        Get the utility model for internal tasks (project naming, icon generation, etc.).
+
+        Priority:
+        1. Explicitly configured UTILITY_MODEL
+        2. Azure OpenAI (if AZURE_API_KEY is set)
+        3. OpenAI (if OPENAI_API_KEY is set)
+        4. Anthropic Claude (if ANTHROPIC_API_KEY is set)
+        5. Fallback to gpt-4o-mini (may fail if no API key)
+        """
+        # If explicitly configured, use it
+        if self.UTILITY_MODEL:
+            return self.UTILITY_MODEL
+
+        # Auto-detect based on available API keys
+        if self.AZURE_API_KEY and self.AZURE_API_BASE:
+            # Azure OpenAI - user must set UTILITY_MODEL to their deployment name
+            # e.g., azure/gpt-4-deployment
+            logger.warning("AZURE_API_KEY is set but UTILITY_MODEL is not configured. "
+                         "Please set UTILITY_MODEL=azure/<your-deployment-name>")
+            return "azure/gpt-4"  # Generic fallback, may not work without proper deployment name
+
+        if self.OPENAI_API_KEY:
+            return "openai/gpt-4o-mini"
+
+        if self.ANTHROPIC_API_KEY:
+            return "anthropic/claude-3-haiku-20240307"
+
+        if self.GROQ_API_KEY:
+            return "groq/llama-3.1-8b-instant"
+
+        if self.GEMINI_API_KEY:
+            return "gemini/gemini-1.5-flash"
+
+        # Last resort fallback
+        return "openai/gpt-4o-mini"
+
     @property
     def DEBUG_SAVE_LLM_IO(self) -> bool:
         """
