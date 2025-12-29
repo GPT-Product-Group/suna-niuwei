@@ -4,8 +4,10 @@ import { Metadata } from 'next';
 export async function generateMetadata({ params }: { params: Promise<{ shareId: string }> }): Promise<Metadata> {
   const { shareId: templateId } = await params;
 
+  // Use internal backend URL for server-side requests (Docker network)
+  const backendUrl = process.env.INTERNAL_BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://backend:8000/v1';
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000/v1'}/templates/public/${templateId}`);
+    const response = await fetch(`${backendUrl}/templates/public/${templateId}`);
 
     if (!response.ok) {
       throw new Error('Template not found');

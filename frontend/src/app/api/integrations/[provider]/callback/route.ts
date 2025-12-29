@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000/v1';
+// Use internal backend URL for server-side requests (Docker network)
+const BACKEND_URL = process.env.INTERNAL_BACKEND_URL || process.env.BACKEND_URL || 'http://backend:8000/v1';
 
 export async function GET(
   request: NextRequest,

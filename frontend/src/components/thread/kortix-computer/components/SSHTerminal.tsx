@@ -70,8 +70,17 @@ const lightTheme: ITheme = {
 };
 
 const getWebSocketUrl = () => {
-  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-  return baseUrl.replace('https://', 'wss://').replace('http://', 'ws://');
+  const configuredUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+
+  // For browser environments with localhost configured, use the current host with backend port
+  // This allows WebSocket connections to work in Docker deployments
+  if (typeof window !== 'undefined' && configuredUrl.includes('localhost')) {
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    // Use same host with port 8000 for backend WebSocket
+    return `${protocol}//${window.location.hostname}:8000`;
+  }
+
+  return configuredUrl.replace('https://', 'wss://').replace('http://', 'ws://').replace(/\/v1\/?$/, '');
 };
 
 let globalConnectionId = 0;

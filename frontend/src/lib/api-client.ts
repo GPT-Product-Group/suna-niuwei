@@ -2,7 +2,20 @@ import { createClient } from '@/lib/supabase/client';
 import { handleApiError, handleNetworkError, ErrorContext, ApiError } from './error-handler';
 import { parseTierRestrictionError, RequestTooLargeError } from './api/errors';
 
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+// Get API URL - use relative URL for same-origin requests when configured
+const getApiUrl = (): string => {
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+
+  // If the URL contains 'localhost', use relative URL for browser requests
+  // This allows the Next.js rewrite to proxy to the backend
+  if (typeof window !== 'undefined' && backendUrl.includes('localhost')) {
+    return '/api/v1';
+  }
+
+  return backendUrl;
+};
+
+const API_URL = getApiUrl();
 
 export interface ApiClientOptions {
   showErrors?: boolean;
